@@ -17,6 +17,7 @@ import {
   findShopProduct, getDefaultProducts, getRecipe, getRestaurant,
   getShopProduct, getSupermarket,
 } from '../data/mockData';
+import { summarizePlanBudget } from '../lib/planBudget';
 import { resolveQuickMeal, type ResolvedQuickMeal } from '../lib/quickMealResolve';
 import { formatEgp, generateOrderId, getTodayKey } from '../utils';
 
@@ -420,9 +421,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
     });
     if (items.length === 0) return;
-    const weekTotal = weeklyPlan.days.reduce((s, d) => s + d.dayTotal, 0);
+    const { weekShopTotal, estimatedDeliveries } = summarizePlanBudget(weeklyPlan);
     addToCart(items);
-    showToast(`Your week added · ~${formatEgp(weekTotal)} · review cart before checkout`);
+    showToast(`Full week in cart · ~${formatEgp(weekShopTotal)} · up to ${estimatedDeliveries} deliveries — review before checkout`);
     setTab('cart');
     setScreen('cart');
   }, [weeklyPlan, plannedMealToCartItems, addToCart, showToast]);

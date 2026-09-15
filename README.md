@@ -1,6 +1,12 @@
 # NutriFlow Prototype v8
 
-**Pillar 4 — local soul (English)** — trust copy, food photos, quick-meal preview. Built on v7 habit + v6 commerce + v5 weekly plan.
+**Pillar 4 + v8.1 polish** — trust copy, food photos, quick-meal preview, honest budget UX. Built on v7 habit + v6 commerce + v5 weekly plan.
+
+## v8.1 polish
+
+- **Budget hero** — rest vs gym day averages; today vs cap; full-week shop separated as “if you ordered everything”
+- **Order my week** demoted to subtle full-week link (one-meal-first)
+- **Food images** — valid JPEG assets (Burst + bundled); chicken bowl uses real food photography
 
 ## What's new in v8
 
