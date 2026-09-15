@@ -1,6 +1,11 @@
 # NutriFlow Prototype v8
 
-**Pillar 4 + v8.1 polish** — trust copy, food photos, quick-meal preview, honest budget UX. Built on v7 habit + v6 commerce + v5 weekly plan.
+**Pillar 4 + v8.2 polish** — trust copy, food photos, quick-meal preview, honest budget UX. Built on v7 habit + v6 commerce + v5 weekly plan.
+
+## v8.2 polish
+
+- **Slimmer home hero** — protein headline + today vs cap; budget details behind “Budget breakdown”
+- **Full-week cost** moved next to “Shop full week” only (not in hero)
 
 ## v8.1 polish
 

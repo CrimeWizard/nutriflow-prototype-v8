@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  ChevronRight, Package, RotateCcw, ShoppingBasket, Store, UtensilsCrossed,
+  ChevronDown, ChevronRight, Package, RotateCcw, ShoppingBasket, Store, UtensilsCrossed,
 } from 'lucide-react';
 import { FoodImage } from '../components/FoodImage';
 import { useApp } from '../context/AppContext';
@@ -54,8 +54,10 @@ export function Home() {
   const { summary } = weeklyPlan;
   const dailyCap = dailyBudgetMax(profile.budgetTier);
   const budget = useMemo(() => summarizePlanBudget(weeklyPlan), [weeklyPlan]);
-  const todaySpend = selectedDay.dayTotal;
+  const todayDay = weeklyPlan.days.find((d) => d.isToday) ?? weeklyPlan.days[0];
+  const todaySpend = todayDay.dayTotal;
   const todayWithinCap = profile.budgetTier === 'flexible' || todaySpend <= dailyCap;
+  const [budgetOpen, setBudgetOpen] = useState(false);
 
   const handleMealClick = (meal: PlannedMeal) => {
     if (meal.source === 'restaurant' && meal.restaurantId) {
@@ -140,50 +142,43 @@ export function Home() {
         <h2>
           {summary.gymDaysCount} gym days · ~{summary.avgDailyProtein}g protein/day
         </h2>
-        <p>
-          {shoppingModeLabel(profile.shoppingMode)}
-          {gymToday
-            ? ` · Training at ${profile.gymTime}`
-            : ' · Lighter on rest days'}
+        <p className="hero-today-line">
+          Today ~{formatEgp(todaySpend)}
+          {profile.budgetTier !== 'flexible' && (
+            <span className={todayWithinCap ? 'hero-budget-ok' : 'hero-budget-warn'}>
+              {' '}· {todayWithinCap ? 'within' : 'above'} ~{formatEgp(dailyCap)} cap
+            </span>
+          )}
         </p>
+        <p className="hero-hint">Tap a meal below to order just one</p>
 
-        <div className="hero-budget-block">
-          <p className="hero-budget-label">Meal plan guide · not a bill</p>
-          <div className="hero-budget-rows">
-            <div className="hero-budget-row">
-              <span>Rest days (avg)</span>
-              <strong>~{formatEgp(budget.avgRestDay)}/day</strong>
+        <button
+          type="button"
+          className="hero-budget-toggle"
+          onClick={() => setBudgetOpen((o) => !o)}
+          aria-expanded={budgetOpen}
+        >
+          Budget breakdown
+          <ChevronDown size={16} className={budgetOpen ? 'hero-chevron-open' : ''} />
+        </button>
+        {budgetOpen && (
+          <div className="hero-budget-panel">
+            <div className="hero-budget-rows">
+              <div className="hero-budget-row">
+                <span>Rest days (avg)</span>
+                <strong>~{formatEgp(budget.avgRestDay)}/day</strong>
+              </div>
+              <div className="hero-budget-row">
+                <span>Gym days (avg)</span>
+                <strong>~{formatEgp(budget.avgGymDay)}/day</strong>
+              </div>
             </div>
-            <div className="hero-budget-row">
-              <span>Gym days (avg)</span>
-              <strong>~{formatEgp(budget.avgGymDay)}/day</strong>
-            </div>
-            <div className="hero-budget-row">
-              <span>{dayLabel}</span>
-              <strong>
-                ~{formatEgp(todaySpend)}
-                {profile.budgetTier !== 'flexible' && (
-                  <span className={todayWithinCap ? 'hero-budget-ok' : 'hero-budget-warn'}>
-                    {' '}· {todayWithinCap ? 'within' : 'above'} ~{formatEgp(dailyCap)} cap
-                  </span>
-                )}
-              </strong>
-            </div>
+            <p className="hero-budget-note">
+              {budgetLabel(profile.budgetTier)} · {shoppingModeLabel(profile.shoppingMode)}
+              {gymToday ? ` · Gym at ${profile.gymTime}` : ''} — guide only, not a bill
+            </p>
           </div>
-          <p className="hero-budget-note">
-            {budgetLabel(profile.budgetTier)} · tap one meal below to stay closer to budget
-          </p>
-        </div>
-
-        <div className="hero-week-shop">
-          <p className="hero-week-shop-label">If you ordered every planned meal this week</p>
-          <p className="hero-week-shop-total">
-            ~{formatEgp(budget.weekShopTotal)} · up to ~{budget.estimatedDeliveries} deliveries
-          </p>
-          <p className="hero-week-shop-note">
-            {budget.restaurantMealCount} eat-out · {budget.homeMealCount} cook-at-home — most people shop 1–2 days at a time
-          </p>
-        </div>
+        )}
       </div>
 
       <p className="section-title">This week</p>
@@ -244,7 +239,7 @@ export function Home() {
       </div>
 
       <p className="cta-hint cta-hint-primary">
-        Tap a meal above to order just one · {selectedDay.dayProtein}g protein this day
+        {selectedDay.dayProtein}g protein · ~{formatEgp(selectedDay.dayTotal)} planned for {dayLabel.toLowerCase()}
       </p>
 
       <button
@@ -261,9 +256,13 @@ export function Home() {
         className="btn btn-ghost week-shop-btn"
         onClick={() => addPlannedWeekToCart()}
       >
-        Shop full week (~{formatEgp(budget.weekShopTotal)}) · ~{budget.estimatedDeliveries} deliveries
+        Shop full week (~{formatEgp(budget.weekShopTotal)})
       </button>
-      <p className="cta-hint">Review cart before checkout — items group by restaurant / supermarket</p>
+      <p className="week-shop-note">
+        If you ordered every planned meal · up to ~{budget.estimatedDeliveries} deliveries
+        · {budget.restaurantMealCount} eat-out · {budget.homeMealCount} cook-at-home
+      </p>
+      <p className="cta-hint">Most people shop 1–2 days at a time · cart groups by vendor</p>
     </div>
   );
 }
